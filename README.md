@@ -14,23 +14,69 @@
 
 <!-- scitex-badges:start -->
 <p align="center">
-  <a href="https://pypi.org/project/scitex-introspect/"><img src="https://img.shields.io/pypi/v/scitex-introspect.svg" alt="PyPI"></a>
-  <a href="https://pypi.org/project/scitex-introspect/"><img src="https://img.shields.io/pypi/pyversions/scitex-introspect.svg" alt="Python"></a>
-  <a href="https://github.com/ywatanabe1989/scitex-introspect/actions/workflows/test.yml"><img src="https://github.com/ywatanabe1989/scitex-introspect/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
-  <a href="https://codecov.io/gh/ywatanabe1989/scitex-introspect"><img src="https://codecov.io/gh/ywatanabe1989/scitex-introspect/graph/badge.svg" alt="Coverage"></a>
-  <a href="https://scitex-introspect.readthedocs.io/en/latest/"><img src="https://readthedocs.org/projects/scitex-introspect/badge/?version=latest" alt="Docs"></a>
-  <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/license-AGPL_v3-blue.svg" alt="License: AGPL v3"></a>
+  <a href="https://pypi.org/project/scitex-introspect/"><img src="https://img.shields.io/pypi/v/scitex-introspect?label=pypi" alt="pypi"></a>
+  <a href="https://pypi.org/project/scitex-introspect/"><img src="https://img.shields.io/pypi/pyversions/scitex-introspect?label=python" alt="python"></a>
+  <a href="https://scitex-introspect.readthedocs.io/en/latest/"><img src="https://img.shields.io/readthedocs/scitex-introspect?label=docs" alt="docs"></a>
+</p>
+<p align="center">
+  <a href="https://github.com/scitex-ai/scitex-introspect/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/scitex-ai/scitex-introspect/ci.yml?branch=develop&label=tests" alt="tests"></a>
+  <a href="https://codecov.io/gh/ywatanabe1989/scitex-introspect"><img src="https://img.shields.io/codecov/c/github/ywatanabe1989/scitex-introspect/develop?label=cov" alt="cov"></a>
 </p>
 <!-- scitex-badges:end -->
 
 ---
 
+## Quick Start
+
+```python
+import scitex_introspect as ix
+
+ix.q(my_func)        # Signature with type hints (like `my_func?`)
+ix.qq(my_func)       # Full source code (like `my_func??`)
+ix.dir(my_pkg)       # List attributes/methods
+```
+
+## Demo
+
+```mermaid
+flowchart LR
+    A["scitex_introspect.q(obj)"] --> B[".signature + type hints"]
+    A2["scitex_introspect.qq(obj)"] --> C[".source"]
+    A3["scitex_introspect.dir(pkg)"] --> D[".members + .list_api"]
+    A4["scitex_introspect.resolve('a.b.c')"] --> E["dotted-path lookup"]
+    B & C & D & E --> F["agent / REPL output"]
+```
+
+<p align="center"><sub><b>Figure 1.</b> Entrypoints fan out to signature, source, member, and resolver helpers.</sub></p>
+
+```python
+>>> import scitex_introspect as ix, json
+>>> ix.q(json.loads)
+json.loads(s, *, cls=None, object_hook=None, ...)
+>>> ix.dir(json)[:3]
+['JSONDecodeError', 'JSONDecoder', 'JSONEncoder']
+```
+
 ## Installation
 
 ```bash
-pip install scitex-introspect
-pip install "scitex-introspect[mcp]"   # + MCP server for AI agents
+uv pip install "scitex-introspect[all]"
 ```
+
+Requires Python ≥ 3.9.
+
+<details>
+<summary><b>Per-extra installs</b></summary>
+
+<br>
+
+| Extra | Pulls in |
+|---|---|
+| `mcp` | stdio MCP server for AI agents (`mcp>=1.0.0`) |
+| `dev` | tests + lint + dev helpers (`pytest`, `ruff`, `scitex-dev`, …) |
+| `docs` | Sphinx docs build (`sphinx`, `myst-parser`, …) |
+
+</details>
 
 ## Architecture
 
@@ -52,8 +98,21 @@ scitex_introspect/
 └── _skills/              ← agent-facing skill pages
 ```
 
-Pure-stdlib core — every module is a thin layer over `inspect`,
-`importlib`, `ast`, and `typing`. Zero runtime deps.
+```mermaid
+flowchart LR
+    obj["any Python object"] --> q["q / qq"]
+    obj --> sig["signature / docstring / source"]
+    pkg["module / package"] --> members["members / dir"]
+    pkg --> tree["list_api (recursive tree)"]
+    file["source file"] --> stat["imports / call_graph"]
+    cls["class"] --> hier["class_hierarchy"]
+    sig & members & tree & stat & hier --> out["DataFrame / text"]
+```
+
+<p align="center"><sub><b>Figure 2.</b> Module data flow: objects, packages, files, and classes route to focused helpers.</sub></p>
+
+Thin core over `inspect`, `importlib`, `ast`, and `typing` — hard runtime
+deps are just `pandas` and `scitex-logging`.
 
 ## 2 Interfaces
 
@@ -99,40 +158,12 @@ running Python themselves.
 
 </details>
 
-## Demo
-
-```mermaid
-flowchart LR
-    A["scitex_introspect.q(obj)"] --> B[".signature + type hints"]
-    A2["scitex_introspect.qq(obj)"] --> C[".source"]
-    A3["scitex_introspect.dir(pkg)"] --> D[".members + .list_api"]
-    A4["scitex_introspect.resolve('a.b.c')"] --> E["dotted-path lookup"]
-    B & C & D & E --> F["agent / REPL output"]
-```
-
-```python
->>> import scitex_introspect as ix, json
->>> ix.q(json.loads)
-json.loads(s, *, cls=None, object_hook=None, ...)
->>> ix.dir(json)[:3]
-['JSONDecodeError', 'JSONDecoder', 'JSONEncoder']
-```
-
-## Quick Start
-
-```python
-import scitex_introspect as ix
-
-ix.q(my_func)        # Signature with type hints (like `my_func?`)
-ix.qq(my_func)       # Full source code (like `my_func??`)
-ix.dir(my_pkg)       # List attributes/methods
-```
-
 ## Status
 
-Standalone fork of `scitex.introspect`. Pure stdlib core — zero runtime
-deps. The umbrella package's `scitex.introspect` import path is preserved
-via a `sys.modules`-alias bridge.
+Standalone fork of `scitex.introspect`. Thin core over stdlib `inspect` /
+`importlib` / `ast` / `typing` — hard runtime deps are just `pandas` and
+`scitex-logging`. The umbrella package's `scitex.introspect` import path is
+preserved via a `sys.modules`-alias bridge.
 
 ## Part of SciTeX
 
