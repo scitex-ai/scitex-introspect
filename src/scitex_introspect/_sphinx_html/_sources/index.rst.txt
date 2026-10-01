@@ -1,8 +1,9 @@
 scitex-introspect
-=============
+=================
 
-Small linear-algebra helpers (distance, geometric median, cosine, nannorm)
-extracted from the SciTeX ecosystem as a standalone package.
+Static and runtime introspection helpers (docstrings, signatures,
+type hints, call graphs, class hierarchies, examples) extracted from
+the SciTeX ecosystem as a standalone package.
 
 .. toctree::
    :maxdepth: 2
@@ -10,11 +11,3 @@ extracted from the SciTeX ecosystem as a standalone package.
 
    api
 
-API Reference
--------------
-
-.. autosummary::
-   :toctree: api
-   :recursive:
-
-   scitex_introspect

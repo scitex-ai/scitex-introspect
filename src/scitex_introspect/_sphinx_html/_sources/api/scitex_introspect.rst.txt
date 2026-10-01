@@ -1,6 +1,0 @@
-﻿scitex\_introspect
-==================
-
-.. automodule:: scitex_introspect
-
-   

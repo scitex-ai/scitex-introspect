@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scitex-introspect"
-version = "0.1.7"
+version = "0.1.8"
 description = "IPython-style introspection (signatures, docstrings, members, source, call graphs, class hierarchy) for any Python package — standalone module from the SciTeX ecosystem"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -19,6 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "pandas",
+    "scitex-logging>=0.1.0",
 ]
 
 [project.optional-dependencies]
@@ -40,6 +41,8 @@ docs = [
 ]
 all = [
     "scitex-introspect[mcp]",
+    "scitex-introspect[dev]",
+    "scitex-introspect[docs]",
 ]
 
 [project.urls]
@@ -59,6 +62,10 @@ scitex-introspect = "scitex_introspect"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["--disable-warnings"]
+markers = [
+    "smoke: fast CLI happy-path tests (<60s, runs on every PR)",
+    "e2e: end-to-end workflows against real subsystems (runs on every PR)",
+]
 
 [tool.coverage.run]
 parallel = true
