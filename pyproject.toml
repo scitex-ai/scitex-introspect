@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scitex-introspect"
-version = "0.1.7"
+version = "0.1.8"
 description = "IPython-style introspection (signatures, docstrings, members, source, call graphs, class hierarchy) for any Python package — standalone module from the SciTeX ecosystem"
 readme = "README.md"
 license = "AGPL-3.0-only"

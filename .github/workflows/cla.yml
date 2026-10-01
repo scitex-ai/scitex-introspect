@@ -1,13 +1,7 @@
 name: CLA Assistant
-# PILOT: org-level reusable-workflow caller (scitex-ai/.github, 2026-07-10).
-# Triggers/permissions preserved verbatim from the prior local file.
-# owner_login/default_branch match the reusable workflow's defaults, so
-# only owner_allowlist is overridden here (this repo's prior hardcoded
-# allowlist includes "LLEmacs" in addition to the default "bot*,ywatanabe1989").
-# NOTE: this repo's prior local file hardcoded the CLA doc URL to a
-# DIFFERENT repo's CLA.md (pre-existing bug). The reusable workflow derives
-# the URL from `github.repository` (the calling repo), so this migration
-# also fixes that link — see PR description.
+
+# Retain trusted main contributor policy with centralized CLA storage.
+# Pass only the secret declared by this untrusted-trigger workflow.
 on:
   issue_comment:
     types: [created]
@@ -22,18 +16,8 @@ permissions:
 
 jobs:
   call:
-    # CLAssistant posts its commit status via a raw Statuses-API call with a
-    # hardcoded context string "CLAssistant" (not a check-run tied to this
-    # job's id), so no required-status-check rename is needed for this job.
-    # owner_allowlist overridden: this repo's allowlist ("bot*,ywatanabe1989,
-    # LLEmacs") includes an extra login beyond the reusable's default
-    # ("bot*,ywatanabe1989").
     uses: scitex-ai/.github/.github/workflows/cla.yml@main
     with:
-      owner_allowlist: "bot*,ywatanabe1989,LLEmacs"
-    # Explicit secret mapping (PS-224): the callee declares
-    # `secrets: GH_PERSONAL_ACCESS_TOKEN: required: true` and supports
-    # explicit mapping — `secrets: inherit` would forward EVERY repo
-    # secret into this attacker-triggerable job.
+      owner_allowlist: "bot*,ywatanabe1989"
     secrets:
       GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
